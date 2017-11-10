@@ -1,0 +1,13 @@
+{% set map = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['quagga'],
+        'service': 'quagga',
+        'config_destination_dir': '/etc/quagga',
+        'config_source_dir': 'quagga/files',
+        'config_os_source_dir': 'quagga/files/debian',
+        'log_dir': '/var/log/quagga',
+        'user': 'quagga',
+        'group': 'quagga',
+        'mode': '640',
+    },
+}, merge=salt['pillar.get']('bind:lookup')) %}

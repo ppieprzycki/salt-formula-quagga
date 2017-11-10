@@ -1,0 +1,99 @@
+
+{%- set neighbours = bgpd.get('neighbours',[]) %}
+{%- set networks = bgpd.get('networks',[]) %}
+
+{%- if bgpd.password is defined %}
+password {{bgpd.password}}
+{%- endif %}
+
+{%- if bgpd.enable_password is defined %}
+enable password {{bgpd.enable_password}}
+{%- endif %}
+
+hostname {{ grains.nodename }}.bgpd
+log file {{ log_dir }}/bgpd.log
+!
+line vty
+!
+
+router bgp {{ bgpd.router_asn }}
+    bgp router-id {{ bgpd.router_id }}
+    {%- if bgpd.maximum_paths is defined %}
+    maximum-paths {{bgpd.maximum_paths}}
+    {%- endif %}
+    {%- if bgpd.log_neighbor_changes is defined %}
+    bgp log-neighbor-changes
+    {%- endif %}
+    {%- if bgpd.deterministic_med is defined %}
+    bgp deterministic-med
+    {%- endif %}
+    {%- if bgpd.graceful_restart is defined %}
+    bgp graceful-restart
+    {%- endif %}
+    {%- if bgpd.timers is defined %}
+    timers bgp {{bgpd.timers.keepalive}} {{bgpd.timers.holdtime}}
+    {%- endif %}
+    {%- if bgpd.redistribute is defined %}
+    {%- for protocol in bgpd.redistribute %}
+    redistribute {{protocol}}
+    {%- endfor %}
+    {%- endif %}
+ 
+    {%- for network in networks %}
+    network {{network}}
+    {%- endfor %}
+    {%- for neighbour in neighbours %}
+    neighbor {{ neighbour.address }} remote-as {{ neighbour.remote_as }}
+    neighbor {{ neighbour.address }} description {{ neighbour.description }}
+    {%- if neighbour.password is defined %}
+    neighbor {{ neighbour.address }} password {{ neighbour.password }}
+    {%- endif %}
+
+    {%- if neighbour.soft_reconfiguration is defined %}
+    neighbor {{ neighbour.address }} soft-reconfiguration inbound
+    {% endif %}
+    
+    {%- if neighbour.route_map is defined %}
+    {%- for direction, name in neighbour.route_map.items() %}
+    neighbor {{ neighbour.address }} route-map {{name}} {{direction}}
+    {%- endfor %}
+    {%- endif %}
+
+    {%- if neighbour.prefix_list is defined %}
+    {%- for direction, name in neighbour.prefix_list.items() %}
+    neighbor {{ neighbour.address }} prefix-list {{name}} {{direction}}
+    {%- endfor %}
+    {%- endif %}
+
+    {%- endfor %}
+
+{%- if prefix_list %}
+{%- for list in prefix_list %}
+{%- for rule in prefix_list.get(list) %}
+ip prefix-list {{list}} seq {{ loop.index * 5 }} {{rule.action}} {{rule.entry}}
+{%- endfor %}
+{%- endfor %}
+{% endif %}
+
+
+{%- if route_map %}
+{%- for map in route_map %}
+{%- for rule in route_map.get(map) %}
+route-map {{map}} {{rule.action}} {{ loop.index * 5 }}
+{%- if rule.match_ip_address_prefix_list is defined %}
+ match ip address prefix-list {{rule.match_ip_address_prefix_list}}
+{%- endif %}
+{%- if rule.set_local_preference is defined %}
+ set local-preference {{rule.set_local_preference}}
+{%- endif %}
+{%- if rule.set_metric is defined %}
+ set metric {{rule.set_metric}}
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+{% endif %}
+
+
+
+
+

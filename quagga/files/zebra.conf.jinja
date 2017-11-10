@@ -1,0 +1,24 @@
+! -*- zebra -*-
+!
+! zebra configuration file
+!
+!
+hostname {{ grains.nodename }}.zebra
+log file {{ log_dir }}/zebra.log
+
+{%- if zebra.password is defined %}
+password {{zebra.password}}
+{%- endif %}
+
+{%- if zebra.enable_password is defined %}
+enable password {{zebra.enable_password}}
+{%- endif %}
+
+!
+interface lo
+!
+ip forwarding
+!
+!
+line vty
+!
