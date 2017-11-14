@@ -19,7 +19,7 @@ quagga_daemons:
     - template: jinja
     - source:   salt://{{ map.config_source_dir }}/daemons.jinja
     - context:
-      bgpd:  {{ bgpd }}
+        bgpd:  {{ bgpd }}
 
 {% if bgpd %}
 quagga_bgpdconf:
@@ -31,10 +31,10 @@ quagga_bgpdconf:
     - template: jinja
     - source:   salt://{{ map.config_source_dir }}/bgpd.conf.jinja
     - context:
-      bgpd:  {{ bgpd }}
-      log_dir: {{ map.log_dir }}
-      prefix_list: {{ prefix_list }}
-      route_map: {{ route_map }}
+        bgpd:  {{ bgpd }}
+        log_dir: {{ map.log_dir }}
+        prefix_list: {{ prefix_list }}
+        route_map: {{ route_map }}
 {% endif %}
 
 quagga_zebraconf:
@@ -46,8 +46,8 @@ quagga_zebraconf:
     - template: jinja
     - source: salt://{{ map.config_source_dir }}/zebra.conf.jinja
     - context:
-      log_dir: {{ map.log_dir }}
-      zebra: {{ zebra }}
+        log_dir: {{ map.log_dir }}
+        zebra: {{ zebra }}
 
 
 {% if grains['os_family'] == 'Debian' %}
