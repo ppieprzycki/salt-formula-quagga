@@ -1,0 +1,43 @@
+---
+driver:
+  name: docker
+  hostname: quagga.ci.local
+  use_sudo: false
+
+provisioner:
+  name: salt_solo
+  salt_install: bootstrap
+  salt_bootstrap_url: https://bootstrap.saltstack.com
+  salt_version: latest
+  require_chef: false
+  log_level: error
+  formula: quagga
+  grains:
+    noservices: True
+  state_top:
+    base:
+      "*":
+        - quagga.config
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - quagga
+
+verifier:
+  name: inspec
+  sudo: true
+
+platforms:
+  - name: <%=ENV['PLATFORM'] || 'ubuntu-xenial'%>
+    driver_config:
+      image: <%=ENV['PLATFORM'] || 'trevorj/salty-whales:xenial'%>
+      platform: ubuntu
+
+suites:
+
+  - name: quagga_config
+    provisioner:
+      pillars-from-files:
+        quagga.sls: tests/pillar/quagga_config.sls
+# vim: ft=yaml sw=2 ts=2 sts=2 tw=125
