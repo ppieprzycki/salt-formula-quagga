@@ -1,5 +1,8 @@
 {% from "quagga/map.jinja" import map with context %}
 
+include:
+  - quagga.config
+
 quagga:
   pkg.installed:
     - pkgs: {{ map.pkgs|json }}
@@ -7,6 +10,5 @@ quagga:
     - name: {{ map.service }}
     - enable: True
     - reload: True
-
-include:
-  - quagga.config
+    - require:
+      - sls: quagga.config
