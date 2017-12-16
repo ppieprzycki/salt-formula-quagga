@@ -36,7 +36,7 @@ platforms:
 
 suites:
 
-  - name: quagga_server
+  - name: quagga_config
     provisioner:
       pillars-from-files:
         quagga.sls: tests/pillar/quagga_config.sls

@@ -17,7 +17,7 @@ install:
   - bundle install
 
 env:
-  - PLATFORM=trevorj/salty-whales:xenial SUITE=quagga_server
+  - PLATFORM=trevorj/salty-whales:xenial SUITE=quagga_config
 
 before_script:
   - set -o pipefail
