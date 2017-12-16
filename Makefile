@@ -30,9 +30,6 @@ all:
 	@echo "make test    - Run tests"
 	@echo "make kitchen - Run Kitchen CI tests (create, converge, verify)"
 	@echo "make clean   - Cleanup after tests run"
-	@echo "make release-major  - Generate new major release"
-	@echo "make release-minor  - Generate new minor release"
-	@echo "make changelog      - Show changes since last release"
 
 install:
 	# Formula
@@ -47,26 +44,6 @@ install:
 
 test:
 	[ ! -d tests ] || (cd tests; ./run_tests.sh)
-
-release-major: check-changes
-	@echo "Current version is $(VERSION), new version is $(NEW_MAJOR_VERSION)"
-	@[ $(VERSION_MAJOR) != $(NEW_MAJOR_VERSION) ] || (echo "Major version $(NEW_MAJOR_VERSION) already released, nothing to do. Do you want release-minor?" && exit 1)
-	echo "$(NEW_MAJOR_VERSION)" > VERSION
-	sed -i 's,version: .*,version: "$(NEW_MAJOR_VERSION)",g' metadata.yml
-	[ ! -f debian/changelog ] || dch -v $(NEW_MAJOR_VERSION) -m --force-distribution -D `dpkg-parsechangelog -S Distribution` "New version"
-	make genchangelog-$(NEW_MAJOR_VERSION)
-	(git add -u; git commit -m "Version $(NEW_MAJOR_VERSION)")
-	git tag -s -m $(NEW_MAJOR_VERSION) $(NEW_MAJOR_VERSION)
-
-release-minor: check-changes
-	@echo "Current version is $(VERSION), new version is $(VERSION_MAJOR).$(NEW_MINOR_VERSION)"
-	echo "$(VERSION_MAJOR).$(NEW_MINOR_VERSION)" > VERSION
-	sed -i 's,version: .*,version: "$(VERSION_MAJOR).$(NEW_MINOR_VERSION)",g' metadata.yml
-	[ ! -f debian/changelog ] || dch -v $(VERSION_MAJOR).$(NEW_MINOR_VERSION) -m --force-distribution -D `dpkg-parsechangelog -S Distribution` "New version"
-	make genchangelog-$(VERSION_MAJOR).$(NEW_MINOR_VERSION)
-	(git add -u; git commit -m "Version $(VERSION_MAJOR).$(NEW_MINOR_VERSION)")
-	git tag -s -m $(NEW_MAJOR_VERSION) $(VERSION_MAJOR).$(NEW_MINOR_VERSION)
-
 check-changes:
 	@git log --pretty=oneline --decorate $(VERSION)..HEAD | grep -Eqc '.*' || (echo "No new changes since version $(VERSION)"; exit 1)
 
