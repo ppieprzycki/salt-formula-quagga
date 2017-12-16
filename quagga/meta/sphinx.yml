@@ -1,0 +1,7 @@
+doc:
+  name: quagga
+  description: Quagga is a network routing software suite providing implementations of OSPF, BGP and more
+  role:
+    service:
+      name: service
+      param: {}

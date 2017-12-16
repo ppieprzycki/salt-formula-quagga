@@ -7,3 +7,6 @@ quagga:
     - name: {{ map.service }}
     - enable: True
     - reload: True
+
+include:
+  - quagga.config
